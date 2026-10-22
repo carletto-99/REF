@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Surf Lover - Portale & Meteo Onde</title>
+
+  <!-- Google Fonts: Font "Outfit" e Icone "Material Symbols Rounded" -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <style>
+    /* ==========================================================================
+       === VARIABILI CSS (:root) ===
+       Colori, font, raggi e ombre definiti come token di design riutilizzabili
+       ========================================================================== */
+    :root {
+      /* Colori primari e accenti */
+      --color-primary: #023A8A;
+      --color-primary-light: #0353A4;
+      --color-primary-soft: #EFF6FF;
+      --color-primary-border: rgba(2, 58, 138, 0.15);
+      --color-accent: #F49D37;
+      --color-accent-soft: #FFF7ED;
+      --color-accent-border: #FED7AA;
+
+      /* Toni neutri e sfondo */
+      --color-bg-page: #F1F5F9;
+      --color-bg-app: #F8FAFC;
+      --color-surface: #FFFFFF;
+      --color-text-main: #0A0908;
+      --color-text-muted: #64748B;
+      --color-border: #E2E8F0;
+      --color-border-card: #EEF2F6;
+
+      /* Stati e indicatori */
+      --color-success: #059669;
+      --color-success-soft: #ECFDF5;
+      --color-success-border: #A7F3D0;
+
+      /* Tipografia */
+      --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+      /* Raggi dei bordi (Border Radius) */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+
+      /* Ombreggiature (Shadows) */
+      --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.04);
+      --shadow-card: 0 4px 16px -2px rgba(2, 58, 138, 0.06);
+      --shadow-primary: 0 6px 18px -2px rgba(2, 58, 138, 0.35);
+      --shadow-media: 0 12px 30px -6px rgba(2, 58, 138, 0.25);
+      --shadow-modal: 0 20px 40px -8px rgba(2, 58, 138, 0.3);
+    }
+
+    /* ==========================================================================
+       === RESET E STILI DI BASE ===
+       Impostazioni globali per azzerare margini e garantire coerenza
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-bg-page);
+      color: var(--color-text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      line-height: 1.4;
+    }
+
+    /* Supporto icone Google Material Symbols Rounded */
+    .material-symbols-rounded {
+      font-family: 'Material Symbols Rounded';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 22px;
+      line-height: 1;
+      display: inline-block;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ==========================================================================
+       === LAYOUT APPLICAZIONE (Mobile-first, max 420px) ===
+       Contenitore principale centrato su schermi desktop
+       ========================================================================== */
+    .app-wrapper {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;
+      background-color: var(--color-bg-app);
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ==========================================================================
+       === HEADER E BARRA STATO SPOT ===
+       Logo, titolo app, pulsante cerca e dettagli spot corrente
+       ========================================================================== */
+    .app-header {
+      background-color: var(--color-surface);
+      padding: 14px 16px 12px 16px;
+      border-bottom: 1px solid rgba(2, 58, 138, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 44px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(2, 58, 138, 0.25);
+    }
+
+    .brand-icon .material-symbols-rounded {
+      font-size: 20px;
+    }
+
+    .brand-texts {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      text-transform: uppercase;
+      line-height: 1;
+      color: var(--color-text-main);
+    }
+
+    .brand-subtitle {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--color-primary);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-top: 3px;
+    }
+
+    .header-search-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background-color: #F8FAFC;
+      border: 1px solid var(--color-border);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: background-color 0.2s, transform 0.15s;
+    }
+
+    .header-search-btn:active {
+      transform: scale(0.94);
+      background-color: var(--color-border);
+    }
+
+    .header-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    .spot-info {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--color-text-main);
+    }
+
+    .spot-info .icon-pin {
+      color: var(--color-accent);
+      font-size: 18px;
+    }
+
+    .spot-name-highlight {
+      color: var(--color-primary);
+    }
+
+    .badge-level {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-primary-soft);
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary-border);
+    }
+
+    /* ==========================================================================
+       === CONTENUTO PRINCIPALE (MAIN) ===
+       Spaziatura interna delle sezioni
+       ========================================================================== */
+    .main-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding-bottom: 32px;
+    }
+
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--color-text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-indicator {
+      width: 4px;
+      height: 16px;
+      border-radius: var(--radius-full);
+      display: inline-block;
+    }
+
+    .indicator-blue {
+      background-color: var(--color-primary);
+    }
+
+    .indicator-orange {
+      background-color: var(--color-accent);
+    }
+
+    .badge-pill-live {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-success-soft);
+      color: var(--color-success);
+      border: 1px solid var(--color-success-border);
+    }
+
+    .badge-pill-orange {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-accent-soft);
+      color: var(--color-accent);
+      border: 1px solid var(--color-accent-border);
+    }
+
+    /* ==========================================================================
+       === SEZIONE 1: LIVE CAM HERO ===
+       Visualizzazione anteprima video con pulsante play e dettagli
+       ========================================================================== */
+    .live-cam-card {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-media);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 14px;
+      cursor: pointer;
+      background-color: #0F172A;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .live-cam-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 36px -6px rgba(2, 58, 138, 0.35);
+    }
+
+    .live-cam-card:active {
+      transform: scale(0.985);
+    }
+
+    .live-cam-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .live-cam-card:hover .live-cam-img {
+      transform: scale(1.03);
+    }
+
+    .live-cam-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.15) 45%, rgba(0, 0, 0, 0.75) 100%);
+      pointer-events: none;
+    }
+
+    .live-cam-top {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cam-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      font-size: 11px;
+      font-weight: 600;
+      color: #FFFFFF;
+      letter-spacing: 0.3px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-accent);
+      box-shadow: 0 0 8px var(--color-accent);
+      animation: pulseAnimation 1.6s infinite ease-in-out;
+    }
+
+    @keyframes pulseAnimation {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.65; }
+    }
+
+    .cam-number-badge {
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-family: monospace;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .live-cam-center {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: auto 0;
+      text-align: center;
+    }
+
+    .play-circle-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(4px);
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .live-cam-card:hover .play-circle-btn {
+      transform: scale(1.1);
+      background: #FFFFFF;
+    }
+
+    .play-circle-btn .material-symbols-rounded {
+      font-size: 30px;
+      margin-left: 3px;
+    }
+
+    .cam-placeholder-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: rgba(255, 255, 255, 0.95);
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(6px);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .live-cam-bottom {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.52);
+      backdrop-filter: blur(8px);
+      padding: 6px 12px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFFFFF;
+    }
+
+    .cam-location-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .cam-location-tag .material-symbols-rounded {
+      font-size: 16px;
+      color: var(--color-accent);
+    }
+
+    .cam-update-time {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 400;
+    }
+
+    /* ==========================================================================
+       === SEZIONE 2: CONDIZIONI SPOT & METEO ===
+       Griglia a 3 colonne cliccabile (Meteo, Vento, Onde)
+       ========================================================================== */
+    .conditions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+
+    .condition-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      border: 1px solid var(--color-border-card);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 116px;
+      cursor: pointer;
+      text-align: left;
+      position: relative;
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+    }
+
+    .condition-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px -2px rgba(2, 58, 138, 0.12);
+      border-color: rgba(2, 58, 138, 0.25);
+    }
+
+    .condition-card:active {
+      transform: scale(0.97);
+    }
+
+    .condition-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .condition-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+    }
+
+    .icon-weather {
+      color: #F59E0B;
+      font-size: 20px;
+    }
+
+    .icon-wind {
+      color: #0EA5E9;
+      font-size: 20px;
+    }
+
+    .icon-waves {
+      color: var(--color-primary);
+      font-size: 20px;
+    }
+
+    .condition-value-wrap {
+      margin: 4px 0;
+    }
+
+    .condition-value {
+      font-size: 23px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--color-text-main);
+    }
+
+    .condition-unit {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      margin-left: 1px;
+    }
+
+    .condition-desc {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      line-height: 1.25;
+    }
+
+    /* Card Onde in evidenza */
+    .condition-card-highlight {
+      background: linear-gradient(180deg, #F0F7FF 0%, #FFFFFF 100%);
+      border: 1.5px solid rgba(2, 58, 138, 0.25);
+      box-shadow: 0 4px 16px -2px rgba(2, 58, 138, 0.1);
+    }
+
+    .condition-card-highlight .condition-label {
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+
+    .condition-card-highlight .condition-value {
+      color: var(--color-primary);
+    }
+
+    .condition-card-highlight .condition-unit {
+      color: rgba(2, 58, 138, 0.8);
+    }
+
+    .condition-card-highlight .condition-desc {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       === SEZIONE 3: FEEDBACK COMMUNITY ===
+       Card con avatar surfisti, badge ruolo e commenti tecnici
+       ========================================================================== */
+    .community-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feedback-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      border: 1px solid var(--color-border-card);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feedback-author-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .author-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-full);
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .author-info {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .author-name-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .author-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--color-text-main);
+    }
+
+    .badge-pro {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-primary-soft);
+      color: var(--color-primary);
+      letter-spacing: 0.5px;
+    }
+
+    .author-role {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+    }
+
+    .feedback-quote {
+      font-size: 12.5px;
+      font-style: italic;
+      color: var(--color-text-main);
+      line-height: 1.38;
+      padding-left: 8px;
+    }
+
+    .quote-border-blue {
+      border-left: 2px solid rgba(2, 58, 138, 0.35);
+    }
+
+    .quote-border-orange {
+      border-left: 2px solid rgba(244, 157, 55, 0.5);
+    }
+
+    /* ==========================================================================
+       === SEZIONE 4: AZIONI RAPIDE ===
+       Tre pulsanti affiancati per esplorare, salvare e condividere
+       ========================================================================== */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px 6px;
+      border-radius: var(--radius-lg);
+      min-height: 70px;
+      cursor: pointer;
+      border: 1px solid var(--color-border);
+      background-color: var(--color-surface);
+      color: var(--color-text-main);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s, box-shadow 0.15s, background-color 0.15s;
+    }
+
+    .action-btn:active {
+      transform: scale(0.96);
+    }
+
+    .action-btn .material-symbols-rounded {
+      font-size: 22px;
+      color: var(--color-primary);
+      transition: transform 0.2s;
+    }
+
+    .action-btn:hover .material-symbols-rounded {
+      transform: scale(1.12);
+    }
+
+    .action-btn-text {
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 4px;
+      line-height: 1.15;
+    }
+
+    /* Pulsante Primario "Aggiungi ai preferiti" */
+    .action-btn-primary {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+      color: #FFFFFF;
+      border: 1px solid var(--color-primary);
+      box-shadow: var(--shadow-primary);
+    }
+
+    .action-btn-primary .material-symbols-rounded {
+      color: #FFFFFF;
+    }
+
+    .action-btn-primary .action-btn-text {
+      color: #FFFFFF;
+      font-weight: 700;
+    }
+
+    /* Animazione specifica del pulsante preferiti quando viene cliccato */
+    .favorite-animating {
+      animation: favoritePulse 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes favoritePulse {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.15); }
+      65% { transform: scale(0.92); }
+      100% { transform: scale(1); }
+    }
+
+    /* ==========================================================================
+       === SEZIONE 5: CARD MOTIVAZIONALE ===
+       Box con citazione e messaggio positivo per il surfista
+       ========================================================================== */
+    .quote-card {
+      background: linear-gradient(145deg, #F0F7FF 0%, #FFF8EE 100%);
+      border: 1px solid rgba(2, 58, 138, 0.12);
+      border-radius: var(--radius-xl);
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 8px 24px -6px rgba(2, 58, 138, 0.08);
+    }
+
+    .quote-icon-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background-color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-accent);
+      margin-bottom: 8px;
+      box-shadow: 0 2px 8px rgba(244, 157, 55, 0.2);
+    }
+
+    .quote-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--color-primary);
+      letter-spacing: -0.2px;
+      margin-bottom: 4px;
+    }
+
+    .quote-text {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      max-width: 310px;
+      line-height: 1.45;
+    }
+
+    /* ==========================================================================
+       === MODALI E POPUP (Finestre di dettaglio al centro dello schermo) ===
+       Sfondo oscurato con effetto sfocato e finestra animata
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 9, 8, 0.65);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-dialog {
+      background: var(--color-surface);
+      width: 100%;
+      max-width: 390px;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-modal);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.92);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 90vh;
+    }
+
+    .modal-overlay.active .modal-dialog {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border);
+      background-color: #F8FAFC;
+    }
+
+    .modal-header-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-header-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      background: var(--color-primary);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--color-text-main);
+    }
+
+    .modal-close-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-full);
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--color-text-muted);
+      transition: background-color 0.15s, color 0.15s, transform 0.1s;
+    }
+
+    .modal-close-btn:hover {
+      background: #F1F5F9;
+      color: var(--color-text-main);
+    }
+
+    .modal-close-btn:active {
+      transform: scale(0.92);
+    }
+
+    .modal-body {
+      padding: 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Griglia dettagli interni ai popup meteo/vento/onde */
+    .details-metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .metric-item {
+      background: #F8FAFC;
+      border: 1px solid var(--color-border-card);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metric-item-label {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    .metric-item-value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-text-main);
+      margin-top: 2px;
+    }
+
+    .modal-tip-box {
+      background: #EFF6FF;
+      border-left: 3px solid var(--color-primary);
+      padding: 10px 12px;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-size: 12px;
+      color: var(--color-primary);
+      line-height: 1.35;
+    }
+
+    /* Modal Video Live Cam */
+    .video-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000000;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .video-player {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .live-broadcast-pill {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(6px);
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: 0.5px;
+    }
+
+    /* Form Ricerca Destinazione */
+    .search-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .search-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .search-input-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 0 12px;
+      height: 44px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input-box:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(2, 58, 138, 0.12);
+    }
+
+    .search-input-box .material-symbols-rounded {
+      color: var(--color-text-muted);
+      font-size: 20px;
+    }
+
+    .search-input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--color-text-main);
+      background: transparent;
+    }
+
+    .recent-spots-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-muted);
+      margin-top: 6px;
+    }
+
+    .recent-spots-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      list-style: none;
+    }
+
+    .recent-spot-btn {
+      width: 100%;
+      background: #F8FAFC;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .recent-spot-btn:hover {
+      background: #EFF6FF;
+      border-color: rgba(2, 58, 138, 0.3);
+    }
+
+    .recent-spot-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--color-text-main);
+      display: block;
+    }
+
+    .recent-spot-desc {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      display: block;
+      margin-top: 1px;
+    }
+
+    .recent-spot-btn .material-symbols-rounded {
+      color: var(--color-primary);
+      font-size: 18px;
+    }
+
+    /* Notifica Toast Fluttuante */
+    .toast-notification {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(30px);
+      background: #0A0908;
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: transform 0.25s ease, opacity 0.25s ease, visibility 0.25s;
+      white-space: nowrap;
+    }
+
+    .toast-notification.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .toast-notification .material-symbols-rounded {
+      font-size: 18px;
+      color: var(--color-accent);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- CONTENITORE PRINCIPALE (Mobile Layout, centrato max 420px) -->
+  <div class="app-wrapper">
+
+    <!-- ====================================================================
+         === 1. HEADER (Logo, Ricerca, Spot Attivo e Livello) ===
+         ==================================================================== -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand-group">
+          <div class="brand-icon" aria-hidden="true">
+            <span class="material-symbols-rounded">surfing</span>
+          </div>
+          <div class="brand-texts">
+            <span class="brand-title">Surf Lover</span>
+            <span class="brand-subtitle">Portal &amp; Forecast</span>
+          </div>
+        </div>
+
+        <!-- Pulsante di ricerca rapida -->
+        <button id="header-search-btn" class="header-search-btn" aria-label="Apri ricerca spot">
+          <span class="material-symbols-rounded">search</span>
+        </button>
+      </div>
+
+      <!-- Barra informativa dello spot selezionato -->
+      <div class="header-bottom">
+        <div class="spot-info">
+          <span class="material-symbols-rounded icon-pin" aria-hidden="true">location_on</span>
+          <span>Spot attuale: <strong id="current-spot-label" class="spot-name-highlight">Praia do Norte, Nazaré</strong></span>
+        </div>
+        <span id="current-level-badge" class="badge-level">LIVELLO: AVANZATO / PRO</span>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         === CONTENUTO PRINCIPALE DELL'APPLICAZIONE (MAIN) ===
+         ==================================================================== -->
+    <main class="main-content">
+
+      <!-- ==================================================================
+           === 2. SEZIONE ELEMENTO PRINCIPALE (Live Cam Video) ===
+           ================================================================== -->
+      <section aria-labelledby="live-cam-heading">
+        <h2 id="live-cam-heading" class="visually-hidden" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);">Webcam dal vivo</h2>
+        
+        <div id="live-cam-trigger" class="live-cam-card" role="button" tabindex="0" aria-label="Guarda la Live Cam a schermo intero">
+          <!-- Immagine di anteprima dello spot -->
+          <img src="3.png" alt="Onde in tempo reale a Praia do Norte Nazaré" class="live-cam-img" onerror="this.src='https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=800&q=80'" />
+          <div class="live-cam-overlay"></div>
+
+          <!-- Barra superiore interna al video: badge Live e numero Cam -->
+          <div class="live-cam-top">
+            <div class="cam-status-pill">
+              <span class="pulse-dot"></span>
+              <span>LIVE CAM - Onde attuali</span>
+            </div>
+            <span class="cam-number-badge">CAM #01</span>
+          </div>
+
+          <!-- Pulsante centrale Play e segnaposto -->
+          <div class="live-cam-center">
+            <div class="play-circle-btn" aria-hidden="true">
+              <span class="material-symbols-rounded">play_arrow</span>
+            </div>
+            <span class="cam-placeholder-label">SEGNAPOSTO: LIVE STREAM WEBCAM</span>
+          </div>
+
+          <!-- Barra inferiore con località e timestamp aggiornamento -->
+          <div class="live-cam-bottom">
+            <div class="cam-location-tag">
+              <span class="material-symbols-rounded">videocam</span>
+              <span id="cam-spot-title">Nazaré - Praia do Norte</span>
+            </div>
+            <span class="cam-update-time">Aggiornato 4 min fa</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           === 3. SEZIONE CONDIZIONI SPOT & METEO ===
+           ================================================================== -->
+      <section aria-labelledby="conditions-heading">
+        <div class="section-title-row">
+          <h2 id="conditions-heading" class="section-title">
+            <span class="title-indicator indicator-blue"></span>
+            Condizioni Spot &amp; Meteo
+          </h2>
+          <span class="badge-pill-live">Dati live</span>
+        </div>
+
+        <!-- Griglia delle 3 schede interattive -->
+        <div class="conditions-grid">
+          <!-- Scheda Meteo -->
+          <button id="card-weather" class="condition-card" type="button" aria-label="Vedi dettagli completi del Meteo">
+            <div class="condition-card-header">
+              <span class="material-symbols-rounded icon-weather">wb_sunny</span>
+              <span class="condition-label">Meteo</span>
+            </div>
+            <div class="condition-value-wrap">
+              <span class="condition-value">21°C</span>
+            </div>
+            <p class="condition-desc">Sereno, visibilità ottima</p>
+          </button>
+
+          <!-- Scheda Vento -->
+          <button id="card-wind" class="condition-card" type="button" aria-label="Vedi dettagli completi del Vento">
+            <div class="condition-card-header">
+              <span class="material-symbols-rounded icon-wind">air</span>
+              <span class="condition-label">Vento</span>
+            </div>
+            <div class="condition-value-wrap">
+              <span class="condition-value">14 <span class="condition-unit">ndi</span></span>
+            </div>
+            <p class="condition-desc">NE (Favorevole)</p>
+          </button>
+
+          <!-- Scheda Onde (In evidenza) -->
+          <button id="card-waves" class="condition-card condition-card-highlight" type="button" aria-label="Vedi dettagli completi delle Onde">
+            <div class="condition-card-header">
+              <span class="material-symbols-rounded icon-waves">tsunami</span>
+              <span class="condition-label">Onde</span>
+            </div>
+            <div class="condition-value-wrap">
+              <span class="condition-value">2.8 <span class="condition-unit">m</span></span>
+            </div>
+            <p class="condition-desc">14s (Potente)</p>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           === 4. SEZIONE FEEDBACK SURFISTI DELLA COMMUNITY ===
+           ================================================================== -->
+      <section aria-labelledby="community-heading">
+        <div class="section-title-row">
+          <h2 id="community-heading" class="section-title">
+            <span class="title-indicator indicator-orange"></span>
+            Feedback Surfisti della Community
+          </h2>
+          <span class="badge-pill-orange">2 Nuovi</span>
+        </div>
+
+        <div class="community-list">
+          <!-- Commento 1: Marco B. -->
+          <article class="feedback-card">
+            <div class="feedback-author-row">
+              <img src="1.png" alt="Foto profilo Marco B." class="author-avatar" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'" />
+              <div class="author-info">
+                <div class="author-name-wrap">
+                  <span class="author-name">Marco B.</span>
+                </div>
+                <span class="author-role">Livello Intermedio</span>
+              </div>
+            </div>
+            <p class="feedback-quote quote-border-blue">
+              “Oggi marea ideale dalle 10 alle 13. Attenzione alla secca a sinistra con la bassa marea. Portate la muta 4/3!”
+            </p>
+          </article>
+
+          <!-- Commento 2: Giulia R. -->
+          <article class="feedback-card">
+            <div class="feedback-author-row">
+              <img src="2.png" alt="Foto profilo Giulia R." class="author-avatar" onerror="this.src='https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80'" />
+              <div class="author-info">
+                <div class="author-name-wrap">
+                  <span class="author-name">Giulia R.</span>
+                  <span class="badge-pro">PRO</span>
+                </div>
+                <span class="author-role">Surf Coach</span>
+              </div>
+            </div>
+            <p class="feedback-quote quote-border-orange">
+              “Line-up pulito questa mattina, picco costante e onde morbide sulla spalla destra. Consigliata tavola 6'6 per divertirsi.”
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           === 5. SEZIONE AZIONI RAPIDE ===
+           ================================================================== -->
+      <section aria-label="Azioni rapide sullo spot">
+        <div class="actions-grid">
+          <!-- 1. Nuova destinazione -->
+          <button id="btn-new-destination" class="action-btn" type="button">
+            <span class="material-symbols-rounded">explore</span>
+            <span class="action-btn-text">Nuova destinazione</span>
+          </button>
+
+          <!-- 2. Aggiungi ai preferiti -->
+          <button id="btn-favorite" class="action-btn action-btn-primary" type="button">
+            <span id="favorite-icon" class="material-symbols-rounded">bookmark</span>
+            <span id="favorite-text" class="action-btn-text">Aggiungi ai preferiti</span>
+          </button>
+
+          <!-- 3. Condividi spot -->
+          <button id="btn-share" class="action-btn" type="button">
+            <span class="material-symbols-rounded">share</span>
+            <span class="action-btn-text">Condividi spot</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           === 6. SEZIONE CARD MOTIVAZIONALE ===
+           ================================================================== -->
+      <section aria-label="Consiglio di saggezza surf">
+        <div class="quote-card">
+          <div class="quote-icon-badge" aria-hidden="true">
+            <span class="material-symbols-rounded">format_quote</span>
+          </div>
+          <h3 class="quote-title">“Goditi ogni istante”</h3>
+          <p class="quote-text">
+            Rispetta le precedenze in mare, controlla la corrente prima di entrare e vivi il viaggio al massimo.
+          </p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ======================================================================
+       === MODALI INTERATTIVE (POPUP) ===
+       ====================================================================== -->
+
+  <!-- POPUP 1: LIVE CAM VIDEO GRANDE -->
+  <div id="modal-livecam" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-livecam-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-header-title-wrap">
+          <div class="modal-header-icon">
+            <span class="material-symbols-rounded">videocam</span>
+          </div>
+          <h3 id="modal-livecam-title" class="modal-title">Live Cam - Onde in diretta</h3>
+        </div>
+        <button id="close-livecam-btn" class="modal-close-btn" aria-label="Chiudi video live">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="video-container">
+          <!-- Video in loop ad alta definizione con fallback -->
+          <video id="livecam-video" class="video-player" playsinline loop muted autoplay poster="3.png">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4" />
+            Il tuo browser non supporta la riproduzione video.
+          </video>
+          <div class="live-broadcast-pill">
+            <span class="pulse-dot"></span>
+            <span>DIRETTA HD • 1080p</span>
+          </div>
+        </div>
+
+        <div class="modal-tip-box">
+          <strong>Nazaré - Praia do Norte:</strong> Webcam streaming 24/7 puntata sul celebre faro e sulla faglia oceanica sottomarina.
+        </div>
+
+        <div class="details-metric-grid">
+          <div class="metric-item">
+            <span class="metric-item-label">Stato segnale</span>
+            <span class="metric-item-value" style="color: var(--color-success);">Eccellente (60 fps)</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Spettatori attivi</span>
+            <span class="metric-item-value">1.480 surfisti</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP 2: DETTAGLI METEO / ONDE / VENTO -->
+  <div id="modal-details" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-details-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-header-title-wrap">
+          <div id="modal-details-icon" class="modal-header-icon">
+            <span class="material-symbols-rounded">info</span>
+          </div>
+          <h3 id="modal-details-title" class="modal-title">Dettaglio Condizioni</h3>
+        </div>
+        <button id="close-details-btn" class="modal-close-btn" aria-label="Chiudi popup dettagli">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Contenuto dinamico inserito da JavaScript -->
+        <div id="modal-details-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP 3: NUOVA DESTINAZIONE & ULTIMI SPOT CERCATI -->
+  <div id="modal-search" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-search-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-header-title-wrap">
+          <div class="modal-header-icon">
+            <span class="material-symbols-rounded">explore</span>
+          </div>
+          <h3 id="modal-search-title" class="modal-title">Nuova destinazione</h3>
+        </div>
+        <button id="close-search-btn" class="modal-close-btn" aria-label="Chiudi ricerca destinazione">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Barra di ricerca -->
+        <div class="search-form-group">
+          <label for="destination-input" class="search-label">Cerca uno spot surf</label>
+          <div class="search-input-box">
+            <span class="material-symbols-rounded">search</span>
+            <input type="search" id="destination-input" class="search-input" placeholder="Es. Peniche, Ericeira, Hossegor..." />
+          </div>
+        </div>
+
+        <!-- Ultimi 3 spot cercati -->
+        <span class="recent-spots-title">I tuoi ultimi 3 spot cercati</span>
+        <ul class="recent-spots-list">
+          <li>
+            <button class="recent-spot-btn" type="button" data-spot="Supertubos, Peniche" data-level="LIVELLO: AVANZATO / EXPERT">
+              <div>
+                <span class="recent-spot-name">Supertubos, Peniche</span>
+                <span class="recent-spot-desc">Onde tubolari potenti, fondale sabbioso</span>
+              </div>
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+          </li>
+          <li>
+            <button class="recent-spot-btn" type="button" data-spot="Ribeira d'Ilhas, Ericeira" data-level="LIVELLO: INTERMEDIO / PRO">
+              <div>
+                <span class="recent-spot-name">Ribeira d'Ilhas, Ericeira</span>
+                <span class="recent-spot-desc">Point break destro lungo, Riserva Mondiale</span>
+              </div>
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+          </li>
+          <li>
+            <button class="recent-spot-btn" type="button" data-spot="Praia do Amado, Algarve" data-level="LIVELLO: TUTTI I LIVELLI">
+              <div>
+                <span class="recent-spot-name">Praia do Amado, Algarve</span>
+                <span class="recent-spot-desc">Beach break costante, ideale per migliorare</span>
+              </div>
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICA TOAST A SCOMPARSA (Feedback visivo per preferiti e condivisione) -->
+  <div id="toast-message" class="toast-notification" role="status" aria-live="polite">
+    <span class="material-symbols-rounded">verified</span>
+    <span id="toast-text">Messaggio di notifica</span>
+  </div>
+
+  <!-- ======================================================================
+       === CODICE JAVASCRIPT VANILLA ===
+       Funzioni semplici, commentate in italiano per studenti principianti
+       ====================================================================== -->
+  <script>
+    /* ==========================================================================
+       === SELEZIONE ELEMENTI DEL DOM ===
+       Selezioniamo tutti gli elementi della pagina con cui l'utente interagirà
+       ========================================================================== */
+    // 1. Elementi per la Live Cam
+    const liveCamTrigger = document.querySelector('#live-cam-trigger');
+    const modalLiveCam = document.querySelector('#modal-livecam');
+    const closeLiveCamBtn = document.querySelector('#close-livecam-btn');
+    const liveCamVideo = document.querySelector('#livecam-video');
+
+    // 2. Elementi per le schede Condizioni (Meteo, Vento, Onde)
+    const cardWeather = document.querySelector('#card-weather');
+    const cardWind = document.querySelector('#card-wind');
+    const cardWaves = document.querySelector('#card-waves');
+    const modalDetails = document.querySelector('#modal-details');
+    const closeDetailsBtn = document.querySelector('#close-details-btn');
+    const modalDetailsTitle = document.querySelector('#modal-details-title');
+    const modalDetailsIcon = document.querySelector('#modal-details-icon');
+    const modalDetailsContent = document.querySelector('#modal-details-content');
+
+    // 3. Elementi per la ricerca e nuova destinazione
+    const headerSearchBtn = document.querySelector('#header-search-btn');
+    const btnNewDestination = document.querySelector('#btn-new-destination');
+    const modalSearch = document.querySelector('#modal-search');
+    const closeSearchBtn = document.querySelector('#close-search-btn');
+    const destinationInput = document.querySelector('#destination-input');
+    const recentSpotButtons = document.querySelectorAll('.recent-spot-btn');
+    const currentSpotLabel = document.querySelector('#current-spot-label');
+    const currentLevelBadge = document.querySelector('#current-level-badge');
+    const camSpotTitle = document.querySelector('#cam-spot-title');
+
+    // 4. Elementi per il pulsante Preferiti e Condividi
+    const btnFavorite = document.querySelector('#btn-favorite');
+    const favoriteIcon = document.querySelector('#favorite-icon');
+    const favoriteText = document.querySelector('#favorite-text');
+    const btnShare = document.querySelector('#btn-share');
+    const toastMessage = document.querySelector('#toast-message');
+    const toastText = document.querySelector('#toast-text');
+
+    // Variabile di stato per i preferiti (true se salvato, false se non salvato)
+    let isFavorite = false;
+
+    /* ==========================================================================
+       === FUNZIONE UTILITY: GESTIONE MODALI E NOTIFICHE ===
+       Funzioni riutilizzabili per aprire, chiudere pop up e mostrare notifiche
+       ========================================================================== */
+
+    // Apre un qualsiasi pop up aggiungendo la classe "active"
+    function openModal(modalElement) {
+      modalElement.classList.add('active');
+    }
+
+    // Chiude il pop up rimuovendo la classe "active"
+    function closeModal(modalElement) {
+      modalElement.classList.remove('active');
+    }
+
+    // Mostra una notifica temporanea "toast" in basso
+    function showToast(message) {
+      toastText.textContent = message;
+      toastMessage.classList.add('show');
+
+      // Nasconde la notifica automaticamente dopo 2.5 secondi
+      setTimeout(function() {
+        toastMessage.classList.remove('show');
+      }, 2500);
+    }
+
+    // Chiude la modale se l'utente clicca fuori dalla finestra di dialogo (sullo sfondo scuro)
+    const allModals = [modalLiveCam, modalDetails, modalSearch];
+    allModals.forEach(function(modal) {
+      modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+          closeModal(modal);
+          if (modal === modalLiveCam && liveCamVideo) {
+            liveCamVideo.pause();
+          }
+        }
+      });
+    });
+
+    /* ==========================================================================
+       === 1. FUNZIONALITÀ: APERTURA VIDEO LIVE CAM ===
+       Cliccando sulla Live Cam si apre il video in grande
+       ========================================================================== */
+    liveCamTrigger.addEventListener('click', function() {
+      openModal(modalLiveCam);
+      // Avvia la riproduzione del video quando la modale è visibile
+      if (liveCamVideo) {
+        liveCamVideo.currentTime = 0;
+        liveCamVideo.play();
+      }
+    });
+
+    closeLiveCamBtn.addEventListener('click', function() {
+      closeModal(modalLiveCam);
+      if (liveCamVideo) {
+        liveCamVideo.pause();
+      }
+    });
+
+    /* ==========================================================================
+       === 2. FUNZIONALITÀ: POP UP DETTAGLI (METEO, VENTO, ONDE) ===
+       Cliccando su una scheda si apre il popup al centro con tutti i dettagli
+       ========================================================================== */
+
+    // Gestione click su "Meteo"
+    cardWeather.addEventListener('click', function() {
+      modalDetailsTitle.textContent = "Dettagli Meteo & Cielo";
+      modalDetailsIcon.innerHTML = '<span class="material-symbols-rounded">wb_sunny</span>';
+      modalDetailsIcon.style.background = "#F59E0B";
+
+      modalDetailsContent.innerHTML = `
+        <div class="modal-tip-box">
+          <strong>Condizioni ottimali:</strong> Cielo limpido con brezza termica leggera. Visibilità sull'orizzonte oltre 15 km.
+        </div>
+        <div class="details-metric-grid">
+          <div class="metric-item">
+            <span class="metric-item-label">Temperatura aria</span>
+            <span class="metric-item-value">21°C</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Temperatura acqua</span>
+            <span class="metric-item-value">17°C (Muta 4/3)</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Indice UV</span>
+            <span class="metric-item-value">6 (Moderato)</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Umidità relativa</span>
+            <span class="metric-item-value">62%</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Pressione barometrica</span>
+            <span class="metric-item-value">1018 hPa</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Orario Tramonto</span>
+            <span class="metric-item-value">20:24</span>
+          </div>
+        </div>
+      `;
+      openModal(modalDetails);
+    });
+
+    // Gestione click su "Vento"
+    cardWind.addEventListener('click', function() {
+      modalDetailsTitle.textContent = "Analisi Vento & Direzione";
+      modalDetailsIcon.innerHTML = '<span class="material-symbols-rounded">air</span>';
+      modalDetailsIcon.style.background = "#0EA5E9";
+
+      modalDetailsContent.innerHTML = `
+        <div class="modal-tip-box">
+          <strong>Vento da terra (Offshore):</strong> Il vento da Nord-Est pettina le pareti dell'onda rendendole perfettamente lisce e facili da surfare.
+        </div>
+        <div class="details-metric-grid">
+          <div class="metric-item">
+            <span class="metric-item-label">Velocità attuale</span>
+            <span class="metric-item-value">14 nodi (26 km/h)</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Raffiche massime</span>
+            <span class="metric-item-value">18 nodi</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Direzione</span>
+            <span class="metric-item-value">NE - 45°</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Scala Beaufort</span>
+            <span class="metric-item-value">Grado 4 (Moderato)</span>
+          </div>
+        </div>
+      `;
+      openModal(modalDetails);
+    });
+
+    // Gestione click su "Onde"
+    cardWaves.addEventListener('click', function() {
+      modalDetailsTitle.textContent = "Bollettino Swell & Onde";
+      modalDetailsIcon.innerHTML = '<span class="material-symbols-rounded">tsunami</span>';
+      modalDetailsIcon.style.background = "var(--color-primary)";
+
+      modalDetailsContent.innerHTML = `
+        <div class="modal-tip-box">
+          <strong>Attenzione alle serie:</strong> Swell potente con lungo periodo oceanico generato nell'Atlantico settentrionale. Onde consistenti con frequenza elevata.
+        </div>
+        <div class="details-metric-grid">
+          <div class="metric-item">
+            <span class="metric-item-label">Altezza onda</span>
+            <span class="metric-item-value">2.8 metri</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Periodo d'onda</span>
+            <span class="metric-item-value">14 secondi</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Direzione Swell</span>
+            <span class="metric-item-value">WNW (295°)</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Marea attuale</span>
+            <span class="metric-item-value">Salita (Picco 12:45)</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Fondale spot</span>
+            <span class="metric-item-value">Sabbia / Canyon</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-item-label">Qualità parete</span>
+            <span class="metric-item-value">Eccellente (A+)</span>
+          </div>
+        </div>
+      `;
+      openModal(modalDetails);
+    });
+
+    closeDetailsBtn.addEventListener('click', function() {
+      closeModal(modalDetails);
+    });
+
+    /* ==========================================================================
+       === 3. FUNZIONALITÀ: POP UP NUOVA DESTINAZIONE & SPOT RECENTI ===
+       Barra di ricerca e lista degli ultimi 3 spot cercati
+       ========================================================================== */
+
+    // Apre la modale di ricerca cliccando su "Nuova destinazione" o sulla lente nell'header
+    btnNewDestination.addEventListener('click', function() {
+      openModal(modalSearch);
+      setTimeout(function() {
+        destinationInput.focus();
+      }, 150);
+    });
+
+    headerSearchBtn.addEventListener('click', function() {
+      openModal(modalSearch);
+      setTimeout(function() {
+        destinationInput.focus();
+      }, 150);
+    });
+
+    closeSearchBtn.addEventListener('click', function() {
+      closeModal(modalSearch);
+    });
+
+    // Quando l'utente clicca su uno dei 3 spot recenti
+    recentSpotButtons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        const spotName = button.getAttribute('data-spot');
+        const levelText = button.getAttribute('data-level');
+
+        // Aggiorna lo spot visualizzato nell'header dell'app
+        currentSpotLabel.textContent = spotName;
+        currentLevelBadge.textContent = levelText;
+        camSpotTitle.textContent = spotName;
+
+        // Chiude il pop up e mostra una conferma all'utente
+        closeModal(modalSearch);
+        showToast("Spot cambiato: " + spotName);
+      });
+    });
+
+    // Quando l'utente preme "Invio" dentro la barra di ricerca
+    destinationInput.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && destinationInput.value.trim() !== '') {
+        const customSpot = destinationInput.value.trim();
+        currentSpotLabel.textContent = customSpot;
+        camSpotTitle.textContent = customSpot;
+        closeModal(modalSearch);
+        showToast("Destinazione impostata: " + customSpot);
+        destinationInput.value = '';
+      }
+    });
+
+    /* ==========================================================================
+       === 4. FUNZIONALITÀ: ANIMAZIONE "AGGIUNGI AI PREFERITI" ===
+       Effetto visivo di battito/impulso e cambio di stato
+       ========================================================================== */
+    btnFavorite.addEventListener('click', function() {
+      // Inverte lo stato del preferito
+      isFavorite = !isFavorite;
+
+      // Aggiunge la classe CSS dell'animazione
+      btnFavorite.classList.add('favorite-animating');
+
+      // Rimuove la classe dopo 600ms per consentire di rianimarlo ai click successivi
+      setTimeout(function() {
+        btnFavorite.classList.remove('favorite-animating');
+      }, 600);
+
+      // Cambia icona, testo e mostra il toast
+      if (isFavorite) {
+        favoriteIcon.textContent = 'bookmark_added';
+        favoriteText.textContent = 'Salvato!';
+        showToast('Spot aggiunto ai tuoi preferiti!');
+      } else {
+        favoriteIcon.textContent = 'bookmark';
+        favoriteText.textContent = 'Aggiungi ai preferiti';
+        showToast('Spot rimosso dai preferiti');
+      }
+    });
+
+    /* ==========================================================================
+       === 5. FUNZIONALITÀ BONUS: CONDIVIDI SPOT ===
+       Feedback rapido quando si tocca "Condividi spot"
+       ========================================================================== */
+    btnShare.addEventListener('click', function() {
+      showToast('Link dello spot copiato negli appunti!');
+    });
+  </script>
+</body>
+</html>
